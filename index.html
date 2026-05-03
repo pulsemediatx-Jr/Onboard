@@ -45,11 +45,24 @@
   input.error, textarea.error { border-color: var(--coral); }
   textarea { min-height: 90px; line-height: 1.6; }
   .optional-label { font-size: 11px; color: var(--muted); font-weight: 300; margin-left: 4px; }
+
+  /* Industry tile grid */
+  .industry-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; margin-top: 4px; }
+  .industry-opt { border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 13px; font-family: 'DM Sans', sans-serif; background: var(--white); color: var(--slate); cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 9px; }
+  .industry-opt:hover { border-color: var(--slate-mid); background: #f0f4f8; }
+  .industry-opt.selected { border-color: var(--coral); background: #fff2f1; color: var(--coral-dark); font-weight: 500; }
+  .industry-opt .tile-icon { font-size: 15px; flex-shrink: 0; }
+  .other-reveal { margin-top: 10px; display: none; }
+  .other-reveal.show { display: block; animation: fadeUp 0.2s ease forwards; }
+  .industry-error { font-size: 12px; color: var(--coral); margin-top: 6px; display: none; }
+
+  /* Budget tile grid */
   .budget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
   .budget-opt { border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 14px; font-family: 'DM Sans', sans-serif; background: var(--white); color: var(--slate); cursor: pointer; text-align: center; transition: all 0.15s; }
   .budget-opt:hover { border-color: var(--slate-mid); background: #f0f4f8; }
   .budget-opt.selected { border-color: var(--coral); background: #fff2f1; color: var(--coral-dark); font-weight: 500; }
   .budget-error { font-size: 12px; color: var(--coral); margin-top: 6px; display: none; }
+
   .nav-row { display: flex; gap: 10px; margin-top: 2rem; align-items: center; }
   .btn-next { flex: 1; background: var(--slate); color: var(--white); border: none; border-radius: 12px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.15s, transform 0.1s; }
   .btn-next:hover { background: #3a4a57; }
@@ -60,6 +73,8 @@
   .btn-submit:hover { background: var(--coral-dark); }
   .btn-submit:active { transform: scale(0.98); }
   .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* Confirmation */
   .confirm-wrap { text-align: center; padding: 3rem 1rem; display: none; }
   .confirm-wrap.show { display: block; animation: fadeUp 0.4s ease; }
   .confirm-check { width: 60px; height: 60px; border-radius: 50%; background: #e8f5ee; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; }
@@ -72,6 +87,7 @@
   .confirm-step:last-child { border-bottom: none; }
   .cs-num { width: 22px; height: 22px; border-radius: 50%; background: var(--coral); color: white; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
   .confirm-sig { font-size: 13px; color: var(--muted); margin-top: 1.5rem; font-style: italic; }
+
   .saved-badge { display: inline-flex; align-items: center; gap: 6px; background: #e8f5ee; color: #0f6e4a; font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; margin-bottom: 1.5rem; }
   .saved-badge svg { width: 13px; height: 13px; stroke: #0f6e4a; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
   .divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
@@ -80,6 +96,7 @@
   @media (max-width: 500px) {
     .field-row { grid-template-columns: 1fr; }
     .budget-grid { grid-template-columns: 1fr; }
+    .industry-grid { grid-template-columns: 1fr 1fr; }
     .section-title { font-size: 22px; }
   }
 </style>
@@ -111,7 +128,10 @@
       <div class="field"><label for="lname">Last name</label><input type="text" id="lname" placeholder="Smith"></div>
     </div>
     <div class="field"><label for="email">Email address</label><input type="email" id="email" placeholder="john@yourbusiness.com"></div>
-    <div class="field"><label for="phone">Phone number</label><input type="tel" id="phone" placeholder="(555) 000-0000"></div>
+    <div class="field">
+      <label for="phone">Phone number</label>
+      <input type="tel" id="phone" placeholder="(555) 000-0000" oninput="formatPhone(this)">
+    </div>
     <div class="nav-row"><button class="btn-next" onclick="goNext(1)">Continue →</button></div>
   </div>
 
@@ -124,23 +144,61 @@
     <div class="section-tag">Step 2 of 4</div>
     <div class="section-title">Tell us about your business</div>
     <div class="section-desc">The more honest you are here, the better we can prepare for your call. There are no wrong answers.</div>
+
     <div class="field"><label for="bizname">Business name</label><input type="text" id="bizname" placeholder="Smith Roofing Co."></div>
+
     <div class="field">
       <label for="website">Website <span class="optional-label">(optional)</span></label>
       <div class="field-hint">If you don't have one yet, just write "none yet"</div>
-      <input type="text" id="website" placeholder="www.yourbusiness.com or none yet">
+      <input type="text" id="website" placeholder="www.smithroofing.com or none yet">
     </div>
+
+    <div class="field">
+      <label>What industry are you in?</label>
+      <div class="field-hint">Select the one that best fits — if nothing matches, choose Other.</div>
+      <div class="industry-grid" id="industryGrid">
+        <div class="industry-opt" data-val="Roofing" onclick="selectIndustry(this)"><span class="tile-icon">🏠</span>Roofing</div>
+        <div class="industry-opt" data-val="HVAC" onclick="selectIndustry(this)"><span class="tile-icon">❄️</span>HVAC</div>
+        <div class="industry-opt" data-val="Plumbing" onclick="selectIndustry(this)"><span class="tile-icon">🔧</span>Plumbing</div>
+        <div class="industry-opt" data-val="Landscaping / Lawn Care" onclick="selectIndustry(this)"><span class="tile-icon">🌿</span>Landscaping / Lawn Care</div>
+        <div class="industry-opt" data-val="Construction / Remodeling" onclick="selectIndustry(this)"><span class="tile-icon">🏗️</span>Construction / Remodeling</div>
+        <div class="industry-opt" data-val="Cleaning Services" onclick="selectIndustry(this)"><span class="tile-icon">✨</span>Cleaning Services</div>
+        <div class="industry-opt" data-val="Auto / Detailing" onclick="selectIndustry(this)"><span class="tile-icon">🚗</span>Auto / Detailing</div>
+        <div class="industry-opt" data-val="Health & Wellness" onclick="selectIndustry(this)"><span class="tile-icon">💪</span>Health & Wellness</div>
+        <div class="industry-opt" data-val="Real Estate" onclick="selectIndustry(this)"><span class="tile-icon">🏡</span>Real Estate</div>
+        <div class="industry-opt" data-val="Restaurant / Food" onclick="selectIndustry(this)"><span class="tile-icon">🍽️</span>Restaurant / Food</div>
+        <div class="industry-opt" data-val="Retail / E-commerce" onclick="selectIndustry(this)"><span class="tile-icon">🛍️</span>Retail / E-commerce</div>
+        <div class="industry-opt" data-val="Legal / Finance" onclick="selectIndustry(this)"><span class="tile-icon">⚖️</span>Legal / Finance</div>
+        <div class="industry-opt" data-val="Other" onclick="selectIndustry(this)"><span class="tile-icon">✏️</span>Other — I'll type it</div>
+      </div>
+      <div class="other-reveal" id="otherReveal">
+        <input type="text" id="industryOther" placeholder="e.g. Solar installation, Pet grooming...">
+      </div>
+      <div class="industry-error" id="industryError">Please select an industry to continue</div>
+    </div>
+
+    <div class="field">
+      <label for="services">What are your main services or products?</label>
+      <textarea id="services" placeholder="Roof installations, repairs, storm damage inspections, and gutter replacement"></textarea>
+    </div>
+
     <div class="field">
       <label for="bizdesc">In 1–2 sentences, what does your business do?</label>
       <div class="field-hint">Explain it like you'd tell a friend — no jargon needed.</div>
-      <textarea id="bizdesc" placeholder="We install and repair residential roofs in the Dallas area..."></textarea>
+      <textarea id="bizdesc" placeholder="We help homeowners in the Dallas area get reliable roof repairs and installs without the runaround — honest pricing, fast response, no surprises"></textarea>
     </div>
+
     <div class="field">
       <label for="location">Where do you operate?</label>
       <div class="field-hint">City, state, and whether you're local only or serve a wider area.</div>
-      <input type="text" id="location" placeholder="Dallas, TX — local only">
+      <input type="text" id="location" placeholder="Dallas, TX — we serve the entire DFW metroplex">
     </div>
-    <div class="field"><label for="bizage">How long have you been in business?</label><input type="text" id="bizage" placeholder="e.g. 3 years"></div>
+
+    <div class="field">
+      <label for="bizage">How long have you been in business?</label>
+      <input type="text" id="bizage" placeholder="e.g. 6 years">
+    </div>
+
     <div class="nav-row">
       <button class="btn-back" onclick="goBack(2)">← Back</button>
       <button class="btn-next" onclick="goNext(2)">Continue →</button>
@@ -152,36 +210,62 @@
     <div class="section-tag">Step 3 of 4</div>
     <div class="section-title">Your customer & competition</div>
     <div class="section-desc">This shapes every piece of content we create for you. Take your time here.</div>
+
     <div class="field">
       <label for="idealcust">Describe your ideal customer</label>
       <div class="field-hint">Who do you most want to work with? Think age, situation, what they need.</div>
-      <textarea id="idealcust" placeholder="Homeowners aged 35–55 who need reliable local service..."></textarea>
+      <textarea id="idealcust" placeholder="Homeowners aged 35–55, own their home, need reliable local work done right the first time"></textarea>
     </div>
+
     <div class="field">
       <label for="custproblem">What problem does your customer have before they find you?</label>
       <div class="field-hint">What are they stressed about, searching for, or struggling with?</div>
-      <textarea id="custproblem" placeholder="They've been burned by unreliable contractors before..."></textarea>
+      <textarea id="custproblem" placeholder="They've been burned by contractors who don't show up, don't communicate, or surprise them with hidden costs"></textarea>
     </div>
+
     <div class="field">
       <label for="platforms">Where does your ideal customer spend time online?</label>
-      <input type="text" id="platforms" placeholder="Facebook, Instagram, Nextdoor, TikTok...">
+      <input type="text" id="platforms" placeholder="Facebook, Nextdoor, Google — they search before they call anyone">
     </div>
+
+    <div class="field">
+      <label for="searchterms">What do your customers typically search for when they have the problem you solve?</label>
+      <div class="field-hint">Think about the words they'd type into Google when they need you.</div>
+      <textarea id="searchterms" placeholder='"Roof repair near me," "best roofer in Dallas," "how much does a roof replacement cost"'></textarea>
+    </div>
+
+    <div class="field">
+      <label for="howfound">How do most of your current customers find you?</label>
+      <div class="field-hint">Word of mouth, Google, referrals, social media — be honest.</div>
+      <input type="text" id="howfound" placeholder="Mostly word of mouth and a few Google reviews — nothing consistent yet">
+    </div>
+
+    <div class="field">
+      <label for="currentmarketing">What marketing are you currently doing, if any?</label>
+      <div class="field-hint">Ads, social media, email, flyers — or nothing yet.</div>
+      <textarea id="currentmarketing" placeholder="Posting on Instagram here and there but nothing consistent — no ads, no strategy"></textarea>
+    </div>
+
     <div class="divider"></div>
+
     <div class="field">
       <label for="competitors">Name 2–3 competitors you admire or lose business to</label>
       <div class="field-hint">Businesses doing what you do that you've noticed or competed with.</div>
-      <textarea id="competitors" placeholder="ABC Roofing, Dallas Roof Pros..."></textarea>
+      <textarea id="competitors" placeholder="ABC Roofing, Dallas Roof Pros, Lone Star Exteriors"></textarea>
     </div>
+
     <div class="field">
       <label for="differentiator">What do you do better than them?</label>
       <div class="field-hint">Even a gut feeling counts — faster? Better quality? More personal?</div>
-      <textarea id="differentiator" placeholder="We respond faster and are upfront about pricing..."></textarea>
+      <textarea id="differentiator" placeholder="We respond same day and we're upfront about pricing — no bait and switch"></textarea>
     </div>
+
     <div class="field">
       <label for="compgap">Is there anything a competitor does that you wish you were doing?</label>
       <div class="field-hint">Strong reviews? Active social media? A recognizable brand?</div>
-      <textarea id="compgap" placeholder="They have great Google reviews and a strong Instagram..."></textarea>
+      <textarea id="compgap" placeholder="ABC Roofing has incredible Google reviews and a really active Facebook page"></textarea>
     </div>
+
     <div class="nav-row">
       <button class="btn-back" onclick="goBack(3)">← Back</button>
       <button class="btn-next" onclick="goNext(3)">Continue →</button>
@@ -193,41 +277,50 @@
     <div class="section-tag">Step 4 of 4 — Last one</div>
     <div class="section-title">What does winning look like?</div>
     <div class="section-desc">These answers help us build a strategy around what actually matters to you.</div>
+
     <div class="field">
       <label for="existingcontent">Existing content <span class="optional-label">(optional)</span></label>
       <div class="field-hint">Paste social links or handles, or write "nothing yet"</div>
-      <input type="text" id="existingcontent" placeholder="@yourhandle on Instagram...">
+      <input type="text" id="existingcontent" placeholder="@smithroofing on Instagram, facebook.com/smithroofing — or nothing yet">
     </div>
+
     <div class="field">
       <label for="brandvoice">How would you describe your brand's personality?</label>
       <div class="field-hint">Professional, friendly, bold, no-nonsense — or a mix?</div>
-      <input type="text" id="brandvoice" placeholder="Friendly and professional — real, not corporate">
+      <input type="text" id="brandvoice" placeholder="Straight to the point, friendly but professional — we want people to trust us, not be impressed by us">
     </div>
+
     <div class="field">
       <label for="goal90">What is your #1 goal in the next 90 days?</label>
-      <div class="field-hint">More leads, more followers, more Google reviews, more calls?</div>
-      <textarea id="goal90" placeholder="Get 10 qualified leads a month and grow our Instagram..."></textarea>
+      <div class="field-hint">Think: more leads, more calls, more Google reviews, more followers — pick the one that matters most right now.</div>
+      <textarea id="goal90" placeholder="Get at least 10 qualified leads a month coming in consistently"></textarea>
     </div>
+
     <div class="field">
-      <label for="bestoutcome">What would be the best possible outcome of working with Pulse Media?</label>
-      <div class="field-hint">Dream a little — what would make this the best decision you ever made?</div>
-      <textarea id="bestoutcome" placeholder="My phone rings every week with qualified leads..."></textarea>
-    </div>
-    <div class="field">
-      <label for="guardrails">Any topics to stay away from? <span class="optional-label">(optional)</span></label>
-      <textarea id="guardrails" style="min-height:70px;" placeholder="Don't mention competitor names..."></textarea>
-    </div>
-    <div class="field">
-      <label>How much would you invest per month for guaranteed results?</label>
-      <div class="field-hint">This helps us recommend the right plan for your business.</div>
+      <label>What monthly budget feels realistic for you right now?</label>
+      <div class="field-hint">This helps us match you to the right plan — no wrong answer.</div>
       <div class="budget-grid">
-        <div class="budget-opt" onclick="selectBudget(this,'Under $500')">Under $500</div>
-        <div class="budget-opt" onclick="selectBudget(this,'$500 – $1,000')">$500 – $1,000</div>
-        <div class="budget-opt" onclick="selectBudget(this,'$1,000 – $2,500')">$1,000 – $2,500</div>
-        <div class="budget-opt" onclick="selectBudget(this,'$2,500+')">$2,500+</div>
+        <div class="budget-opt" onclick="selectBudget(this,'Under $500/month')">Under $500/month</div>
+        <div class="budget-opt" onclick="selectBudget(this,'$500 – $1,000/month')">$500 – $1,000/month</div>
+        <div class="budget-opt" onclick="selectBudget(this,'$1,000 – $2,500/month')">$1,000 – $2,500/month</div>
+        <div class="budget-opt" onclick="selectBudget(this,'$2,500+/month')">$2,500+/month</div>
+        <div class="budget-opt" onclick="selectBudget(this,'Not sure yet')">Not sure yet</div>
       </div>
       <div class="budget-error" id="budgetError">Please select a budget option to continue</div>
     </div>
+
+    <div class="field">
+      <label for="sixmonths">Six months from now, what would make you say hiring Pulse Media was the best decision you made?</label>
+      <div class="field-hint">Think big picture — what does life look like when this is working?</div>
+      <textarea id="sixmonths" placeholder="Stop relying on word of mouth — I want people to find us on Google and social without me having to ask anyone for a referral"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="guardrails">Anything we should know that's sensitive or off-limits? <span class="optional-label">(optional)</span></label>
+      <div class="field-hint">Past issues, competitor names to avoid, topics to stay away from — anything that would be useful to know before the call.</div>
+      <textarea id="guardrails" style="min-height:70px;" placeholder="We had a bad experience with a past partner, don't want to mention them by name anywhere"></textarea>
+    </div>
+
     <div class="error-msg" id="errorMsg">Something went wrong. Please try again or email us at pulsemediatx@gmail.com</div>
     <div class="nav-row">
       <button class="btn-back" onclick="goBack(4)">← Back</button>
@@ -239,12 +332,11 @@
   <div class="confirm-wrap" id="confirmWrap">
     <div class="confirm-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
     <div class="confirm-title">You're all set, <span class="confirm-name" id="confirmName"></span>.</div>
-    <div class="confirm-text">We'll review everything before your call and come prepared with real research on your market and competitors.</div>
+    <div class="confirm-text">We'll review everything you shared before the call. Here's what comes next:</div>
     <div class="confirm-steps">
-      <div class="confirm-step"><div class="cs-num">1</div><div>We research your industry and competitors — automatically, before the call</div></div>
-      <div class="confirm-step"><div class="cs-num">2</div><div>We find the gaps your competitors aren't filling</div></div>
-      <div class="confirm-step"><div class="cs-num">3</div><div>We build a draft 90-day plan specific to your business</div></div>
-      <div class="confirm-step"><div class="cs-num">4</div><div>You show up to the call and see exactly what we'd do — no fluff</div></div>
+      <div class="confirm-step"><div class="cs-num">1</div><div>We read through everything you submitted — nothing gets skipped</div></div>
+      <div class="confirm-step"><div class="cs-num">2</div><div>We do our homework on your market and who you're up against</div></div>
+      <div class="confirm-step"><div class="cs-num">3</div><div>You show up to a real conversation — not a sales pitch</div></div>
     </div>
     <div class="confirm-sig">— Jhonel Romero, Pulse Media · pulsemediatx</div>
   </div>
@@ -254,6 +346,7 @@
 <script>
   const FORMSPREE = 'https://formspree.io/f/xaqlzkne';
   let selectedBudget = '';
+  let selectedIndustry = '';
 
   function updateProgress(sec) {
     const pct = Math.round(((sec - 1) / 4) * 100);
@@ -279,22 +372,61 @@
       const val = el.value.trim();
       let ok = val.length > 0;
       if (type === 'email') ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+      if (type === 'phone') ok = val.replace(/\D/g, '').length === 10;
       if (!ok) { el.classList.add('error'); if (!first) first = el; valid = false; }
     });
     if (first) first.focus();
     return valid;
   }
 
+  function formatPhone(input) {
+    let val = input.value.replace(/\D/g, '').substring(0, 10);
+    if (val.length >= 7) val = '(' + val.substring(0,3) + ') ' + val.substring(3,6) + '-' + val.substring(6);
+    else if (val.length >= 4) val = '(' + val.substring(0,3) + ') ' + val.substring(3);
+    else if (val.length > 0) val = '(' + val;
+    input.value = val;
+  }
+
+  function selectIndustry(el) {
+    document.querySelectorAll('.industry-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedIndustry = el.dataset.val;
+    const reveal = document.getElementById('otherReveal');
+    document.getElementById('industryError').style.display = 'none';
+    if (selectedIndustry === 'Other') {
+      reveal.classList.add('show');
+      document.getElementById('industryOther').focus();
+    } else {
+      reveal.classList.remove('show');
+    }
+  }
+
   function goNext(sec) {
     const map = {
-      1: [{id:'fname'},{id:'lname'},{id:'email',type:'email'},{id:'phone'}],
-      2: [{id:'bizname'},{id:'bizdesc'},{id:'location'},{id:'bizage'}],
-      3: [{id:'idealcust'},{id:'custproblem'},{id:'platforms'},{id:'competitors'},{id:'differentiator'},{id:'compgap'}]
+      1: [{id:'fname'},{id:'lname'},{id:'email',type:'email'},{id:'phone',type:'phone'}],
+      2: [{id:'bizname'},{id:'services'},{id:'bizdesc'},{id:'location'},{id:'bizage'}],
+      3: [{id:'idealcust'},{id:'custproblem'},{id:'platforms'},{id:'searchterms'},{id:'howfound'},{id:'currentmarketing'},{id:'competitors'},{id:'differentiator'},{id:'compgap'}]
     };
     if (!validate(map[sec] || [])) return;
+
     if (sec === 1) {
       document.getElementById('savedName').textContent = 'Contact info saved — ' + document.getElementById('fname').value;
     }
+
+    if (sec === 2) {
+      if (!selectedIndustry) {
+        document.getElementById('industryError').style.display = 'block';
+        document.getElementById('industryGrid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      if (selectedIndustry === 'Other' && !document.getElementById('industryOther').value.trim()) {
+        document.getElementById('industryError').textContent = 'Please type your industry in the field above';
+        document.getElementById('industryError').style.display = 'block';
+        document.getElementById('industryOther').focus();
+        return;
+      }
+    }
+
     showSection(sec + 1);
   }
 
@@ -308,7 +440,7 @@
   }
 
   async function submitForm() {
-    if (!validate([{id:'brandvoice'},{id:'goal90'},{id:'bestoutcome'}])) return;
+    if (!validate([{id:'brandvoice'},{id:'goal90'},{id:'sixmonths'}])) return;
     if (!selectedBudget) { document.getElementById('budgetError').style.display = 'block'; return; }
 
     const btn = document.getElementById('submitBtn');
@@ -316,29 +448,38 @@
     btn.textContent = 'Sending...';
     document.getElementById('errorMsg').classList.remove('show');
 
+    const industryVal = selectedIndustry === 'Other'
+      ? document.getElementById('industryOther').value.trim()
+      : selectedIndustry;
+
     const data = {
       _subject: '🔔 New Pulse Media intake — ' + document.getElementById('bizname').value,
-      '01_First_Name':        document.getElementById('fname').value,
-      '02_Last_Name':         document.getElementById('lname').value,
-      '03_Email':             document.getElementById('email').value,
-      '04_Phone':             document.getElementById('phone').value,
-      '05_Business_Name':     document.getElementById('bizname').value,
-      '06_Website':           document.getElementById('website').value || 'None yet',
-      '07_What_They_Do':      document.getElementById('bizdesc').value,
-      '08_Location':          document.getElementById('location').value,
-      '09_Years_In_Business': document.getElementById('bizage').value,
-      '10_Ideal_Customer':    document.getElementById('idealcust').value,
-      '11_Customer_Problem':  document.getElementById('custproblem').value,
-      '12_Online_Platforms':  document.getElementById('platforms').value,
-      '13_Competitors':       document.getElementById('competitors').value,
-      '14_Differentiator':    document.getElementById('differentiator').value,
-      '15_Competitor_Gaps':   document.getElementById('compgap').value,
-      '16_Existing_Content':  document.getElementById('existingcontent').value || 'None yet',
-      '17_Brand_Voice':       document.getElementById('brandvoice').value,
-      '18_Goal_90_Days':      document.getElementById('goal90').value,
-      '19_Best_Outcome':      document.getElementById('bestoutcome').value,
-      '20_Guardrails':        document.getElementById('guardrails').value || 'None specified',
-      '21_Monthly_Budget':    selectedBudget
+      '01_First_Name':          document.getElementById('fname').value,
+      '02_Last_Name':           document.getElementById('lname').value,
+      '03_Email':               document.getElementById('email').value,
+      '04_Phone':               document.getElementById('phone').value,
+      '05_Business_Name':       document.getElementById('bizname').value,
+      '06_Website':             document.getElementById('website').value || 'None yet',
+      '07_Industry':            industryVal,
+      '08_Services':            document.getElementById('services').value,
+      '09_What_They_Do':        document.getElementById('bizdesc').value,
+      '10_Location':            document.getElementById('location').value,
+      '11_Years_In_Business':   document.getElementById('bizage').value,
+      '12_Ideal_Customer':      document.getElementById('idealcust').value,
+      '13_Customer_Problem':    document.getElementById('custproblem').value,
+      '14_Online_Platforms':    document.getElementById('platforms').value,
+      '15_Search_Terms':        document.getElementById('searchterms').value,
+      '16_How_Found':           document.getElementById('howfound').value,
+      '17_Current_Marketing':   document.getElementById('currentmarketing').value,
+      '18_Competitors':         document.getElementById('competitors').value,
+      '19_Differentiator':      document.getElementById('differentiator').value,
+      '20_Competitor_Gaps':     document.getElementById('compgap').value,
+      '21_Existing_Content':    document.getElementById('existingcontent').value || 'None yet',
+      '22_Brand_Voice':         document.getElementById('brandvoice').value,
+      '23_Goal_90_Days':        document.getElementById('goal90').value,
+      '24_Monthly_Budget':      selectedBudget,
+      '25_Six_Month_Outcome':   document.getElementById('sixmonths').value,
+      '26_Guardrails':          document.getElementById('guardrails').value || 'None specified',
     };
 
     try {
