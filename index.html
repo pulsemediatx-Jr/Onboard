@@ -222,6 +222,8 @@
           <label class="mini-label">Any past platform strikes, content takedowns, or compliance issues? <span class="optional-label">(optional)</span></label>
           <textarea id="financeCompliance" style="min-height:60px;" placeholder="If none, leave this blank"></textarea>
         </div>
+
+        <div class="industry-error" id="financeError">Please answer all three compliance questions above to continue</div>
       </div>
 
       <div class="industry-error" id="industryError">Please select an industry to continue</div>
@@ -457,6 +459,7 @@
       financeReveal.classList.add('show');
     } else {
       financeReveal.classList.remove('show');
+      document.getElementById('financeError').style.display = 'none';
     }
   }
 
@@ -464,6 +467,10 @@
     document.querySelectorAll('.mini-toggle-row[data-group="' + group + '"] .mini-opt').forEach(o => o.classList.remove('selected'));
     el.classList.add('selected');
     miniAnswers[group] = val;
+    // Once all three are answered, clear the error immediately instead of waiting for the next Continue click
+    if (miniAnswers.licensed && miniAnswers.partnerships && miniAnswers.advicetype) {
+      document.getElementById('financeError').style.display = 'none';
+    }
   }
 
   function goNext(sec) {
@@ -489,6 +496,15 @@
         document.getElementById('industryError').style.display = 'block';
         document.getElementById('industryOther').focus();
         return;
+      }
+      // Finance/Personal Finance clients must answer all three compliance toggles before continuing
+      if (selectedIndustry === 'Finance / Personal Finance') {
+        const missingCompliance = !miniAnswers.licensed || !miniAnswers.partnerships || !miniAnswers.advicetype;
+        if (missingCompliance) {
+          document.getElementById('financeError').style.display = 'block';
+          document.getElementById('financeReveal').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
       }
     }
 
