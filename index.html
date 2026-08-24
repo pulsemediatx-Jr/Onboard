@@ -56,6 +56,19 @@
   .other-reveal.show { display: block; animation: fadeUp 0.2s ease forwards; }
   .industry-error { font-size: 12px; color: var(--coral); margin-top: 6px; display: none; }
 
+  /* Finance compliance reveal */
+  .finance-reveal { margin-top: 14px; display: none; background: #f7f9fc; border: 1.5px solid var(--border); border-radius: 12px; padding: 16px; }
+  .finance-reveal.show { display: block; animation: fadeUp 0.2s ease forwards; }
+  .finance-reveal-title { font-size: 12px; font-weight: 500; color: var(--slate); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .finance-reveal-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+  .mini-field { margin-bottom: 14px; }
+  .mini-field:last-child { margin-bottom: 0; }
+  .mini-label { display: block; font-size: 13px; font-weight: 500; color: var(--slate); margin-bottom: 7px; }
+  .mini-toggle-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mini-opt { border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 13px; font-family: 'DM Sans', sans-serif; background: var(--white); color: var(--slate); cursor: pointer; transition: all 0.15s; }
+  .mini-opt:hover { border-color: var(--slate-mid); background: #f0f4f8; }
+  .mini-opt.selected { border-color: var(--coral); background: #fff2f1; color: var(--coral-dark); font-weight: 500; }
+
   /* Budget tile grid */
   .budget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
   .budget-opt { border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 14px; font-family: 'DM Sans', sans-serif; background: var(--white); color: var(--slate); cursor: pointer; text-align: center; transition: all 0.15s; }
@@ -168,12 +181,49 @@
         <div class="industry-opt" data-val="Real Estate" onclick="selectIndustry(this)"><span class="tile-icon">🏡</span>Real Estate</div>
         <div class="industry-opt" data-val="Restaurant / Food" onclick="selectIndustry(this)"><span class="tile-icon">🍽️</span>Restaurant / Food</div>
         <div class="industry-opt" data-val="Retail / E-commerce" onclick="selectIndustry(this)"><span class="tile-icon">🛍️</span>Retail / E-commerce</div>
-        <div class="industry-opt" data-val="Legal / Finance" onclick="selectIndustry(this)"><span class="tile-icon">⚖️</span>Legal / Finance</div>
+        <div class="industry-opt" data-val="Legal" onclick="selectIndustry(this)"><span class="tile-icon">⚖️</span>Legal</div>
+        <div class="industry-opt" data-val="Finance / Personal Finance" onclick="selectIndustry(this)"><span class="tile-icon">💰</span>Finance / Personal Finance</div>
         <div class="industry-opt" data-val="Other" onclick="selectIndustry(this)"><span class="tile-icon">✏️</span>Other — I'll type it</div>
       </div>
       <div class="other-reveal" id="otherReveal">
         <input type="text" id="industryOther" placeholder="e.g. Solar installation, Pet grooming...">
       </div>
+
+      <div class="finance-reveal" id="financeReveal">
+        <div class="finance-reveal-title">A few quick compliance questions</div>
+        <div class="finance-reveal-sub">Finance content is held to a higher bar than most niches. These answers help us keep everything we create for you safe, honest, and compliant — nothing here disqualifies you, we just need to know.</div>
+
+        <div class="mini-field">
+          <label class="mini-label">Are you a licensed or certified financial professional? (CFP, RIA, Series 65, etc.)</label>
+          <div class="mini-toggle-row" data-group="licensed">
+            <div class="mini-opt" onclick="selectMini(this,'licensed','Yes')">Yes</div>
+            <div class="mini-opt" onclick="selectMini(this,'licensed','No')">No</div>
+          </div>
+        </div>
+
+        <div class="mini-field">
+          <label class="mini-label">Do you currently have, or plan to have, paid partnerships, affiliate links, or sponsorships?</label>
+          <div class="mini-toggle-row" data-group="partnerships">
+            <div class="mini-opt" onclick="selectMini(this,'partnerships','Yes')">Yes</div>
+            <div class="mini-opt" onclick="selectMini(this,'partnerships','No')">No</div>
+          </div>
+        </div>
+
+        <div class="mini-field">
+          <label class="mini-label">Does your content give specific personalized recommendations, or is it general education?</label>
+          <div class="mini-toggle-row" data-group="advicetype">
+            <div class="mini-opt" onclick="selectMini(this,'advicetype','Specific recommendations')">Specific recommendations</div>
+            <div class="mini-opt" onclick="selectMini(this,'advicetype','General education')">General education</div>
+            <div class="mini-opt" onclick="selectMini(this,'advicetype','A mix of both')">A mix of both</div>
+          </div>
+        </div>
+
+        <div class="mini-field">
+          <label class="mini-label">Any past platform strikes, content takedowns, or compliance issues? <span class="optional-label">(optional)</span></label>
+          <textarea id="financeCompliance" style="min-height:60px;" placeholder="If none, leave this blank"></textarea>
+        </div>
+      </div>
+
       <div class="industry-error" id="industryError">Please select an industry to continue</div>
     </div>
 
@@ -300,10 +350,10 @@
       <label>What monthly budget feels realistic for you right now?</label>
       <div class="field-hint">This helps us match you to the right plan — no wrong answer.</div>
       <div class="budget-grid">
-        <div class="budget-opt" onclick="selectBudget(this,'Under $500/month')">Under $500/month</div>
-        <div class="budget-opt" onclick="selectBudget(this,'$500 – $1,000/month')">$500 – $1,000/month</div>
-        <div class="budget-opt" onclick="selectBudget(this,'$1,000 – $2,500/month')">$1,000 – $2,500/month</div>
-        <div class="budget-opt" onclick="selectBudget(this,'$2,500+/month')">$2,500+/month</div>
+        <div class="budget-opt" onclick="selectBudget(this,'Under $1,500/month')">Under $1,500/month</div>
+        <div class="budget-opt" onclick="selectBudget(this,'$1,500 – $3,000/month')">$1,500 – $3,000/month</div>
+        <div class="budget-opt" onclick="selectBudget(this,'$3,000 – $5,000/month')">$3,000 – $5,000/month</div>
+        <div class="budget-opt" onclick="selectBudget(this,'$5,000+/month')">$5,000+/month</div>
         <div class="budget-opt" onclick="selectBudget(this,'Not sure yet')">Not sure yet</div>
       </div>
       <div class="budget-error" id="budgetError">Please select a budget option to continue</div>
@@ -347,6 +397,7 @@
   const FORMSPREE = 'https://formspree.io/f/xaqlzkne';
   let selectedBudget = '';
   let selectedIndustry = '';
+  let miniAnswers = { licensed: '', partnerships: '', advicetype: '' };
 
   function updateProgress(sec) {
     const pct = Math.round(((sec - 1) / 4) * 100);
@@ -392,13 +443,27 @@
     el.classList.add('selected');
     selectedIndustry = el.dataset.val;
     const reveal = document.getElementById('otherReveal');
+    const financeReveal = document.getElementById('financeReveal');
     document.getElementById('industryError').style.display = 'none';
+
     if (selectedIndustry === 'Other') {
       reveal.classList.add('show');
       document.getElementById('industryOther').focus();
     } else {
       reveal.classList.remove('show');
     }
+
+    if (selectedIndustry === 'Finance / Personal Finance') {
+      financeReveal.classList.add('show');
+    } else {
+      financeReveal.classList.remove('show');
+    }
+  }
+
+  function selectMini(el, group, val) {
+    document.querySelectorAll('.mini-toggle-row[data-group="' + group + '"] .mini-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    miniAnswers[group] = val;
   }
 
   function goNext(sec) {
@@ -452,6 +517,8 @@
       ? document.getElementById('industryOther').value.trim()
       : selectedIndustry;
 
+    const isFinance = selectedIndustry === 'Finance / Personal Finance';
+
     const data = {
       _subject: '🔔 New Pulse Media intake — ' + document.getElementById('bizname').value,
       '01_First_Name':          document.getElementById('fname').value,
@@ -480,6 +547,10 @@
       '24_Monthly_Budget':      selectedBudget,
       '25_Six_Month_Outcome':   document.getElementById('sixmonths').value,
       '26_Guardrails':          document.getElementById('guardrails').value || 'None specified',
+      '27_Licensed_Financial_Professional': isFinance ? (miniAnswers.licensed || 'Not answered') : 'N/A — not a finance client',
+      '28_Paid_Partnerships_Or_Affiliate':  isFinance ? (miniAnswers.partnerships || 'Not answered') : 'N/A — not a finance client',
+      '29_Advice_Type':                     isFinance ? (miniAnswers.advicetype || 'Not answered') : 'N/A — not a finance client',
+      '30_Past_Platform_Strikes':           isFinance ? (document.getElementById('financeCompliance').value || 'None specified') : 'N/A — not a finance client',
     };
 
     try {
